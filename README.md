@@ -1,2 +1,0 @@
-# appdev
-Mobile Application Development
