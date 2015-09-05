@@ -1,0 +1,84 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" type='text/javascript'></script>
+
+<div id="ttl"></div>
+
+<link type="text/css" rel="stylesheet" href="https://lendingclub.sharepoint.com/sites/ctsandbox/teamsite/SiteAssets/clock_assets/flipclock.css" />
+
+<div class="clock-builder-output"></div>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://lendingclub.sharepoint.com/sites/ctsandbox/teamsite/SiteAssets/clock_assets/flipclock.js"></script>
+<style text="text/css">body .flip-clock-wrapper ul li a div div.inn, body .flip-clock-small-wrapper ul li a div div.inn { color: #CCCCCC; background-color: #333333; } body .flip-clock-dot, body .flip-clock-small-wrapper .flip-clock-dot { background: #323434; } body .flip-clock-wrapper .flip-clock-meridium a, body .flip-clock-small-wrapper .flip-clock-meridium a { color: #323434; }</style>
+<script type="text/javascript">
+
+
+$(document).ready(function() 
+{  
+   SP.SOD.executeFunc('sp.js', null, function(){ GetListData('Timer'); });
+}); 
+ 
+function GetListData(listName) {
+    var clientContext = SP.ClientContext.get_current();
+    //alert("One");
+    var oList = clientContext.get_web().get_lists().getByTitle(listName);        
+    var camlQuery = new SP.CamlQuery();
+   
+    // This query can be as simple or as complex as you like. 
+    camlQuery.set_viewXml('<view><Query></Query></view>');
+
+    this.collListItem = oList.getItems(camlQuery);        
+    //alert("Two");
+ 
+    clientContext.load(collListItem);        
+    
+    //alert("Three");
+ 
+    clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));        
+}
+
+function onQuerySucceeded(sender, args) 
+{
+    
+    var listItems = '';
+    var listItemEnumerator = collListItem.getEnumerator();
+    listItemEnumerator.moveNext();
+    var oListItem = listItemEnumerator.get_current();
+    /*
+    while (listItemEnumerator.moveNext()) 
+    {
+       var oListItem = listItemEnumerator.get_current();
+       //alert(oListItem.get_item('Title'));
+       listItems = listItems + oListItem.get_item('Title');
+       //listItems = listItems + oListItem.get_item('Year');
+       listItems = listItems + "<br/><hr><br/>";
+    }
+    */
+
+    var year = oListItem.get_item('Year');
+    var month = oListItem.get_item('Month');
+    //january = 0 with javascript date, so subtracting 1 more to the value of month.
+    month--;
+    var day = oListItem.get_item('Day');
+    var hour = oListItem.get_item('Hour');
+    var minute = oListItem.get_item('Minute');
+
+    $("#ttl").html("<p>ploo</p>"");
+    $(function(){
+       FlipClock.Lang.Custom = { days:'Days', hours:'Hours', minutes:'Minutes', seconds:'Seconds' };
+       var opts = {
+         clockFace: 'DailyCounter',
+         countdown: true,
+         language: 'Custom'
+       };  
+       var startDate = new Date(year,month,day,hour, minute);
+       var countdown = startDate/1000 - ((new Date().getTime())/1000); // from: 09/03/2015 01:03 pm -0700
+       countdown = Math.max(1, countdown);
+       $('.clock-builder-output').FlipClock(countdown, opts);
+     });
+}
+ 
+function onQueryFailed(sender, args) {
+    alert('Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
+}
+
+
+</script>
